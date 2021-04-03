@@ -1,0 +1,58 @@
+name: Shadow Daemon
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    name: Publish
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup Deno v1
+        uses: denolib/setup-deno@v2
+        with:
+          deno-version: 1
+          
+      - name: Package Application
+        run: npm run build:daemon
+        
+      - name: Check For Changes
+        uses: dorny/paths-filter@v2
+        id: changes
+        with:
+          filters: |
+            daemon:
+              - services/shadow-{daemon,tools}/**
+
+      - name: Generate Version Number
+        if: steps.changes.outputs.daemon == 'true'
+        run: echo "VERSION=0.0.0-alpha.$GITHUB_RUN_ID" >> $GITHUB_ENV
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        if: steps.changes.outputs.daemon == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ env.VERSION }}
+          release_name: ${{ env.VERSION }}
+          prerelease: false
+
+      - name: Upload Linux Release
+        uses: actions/upload-release-asset@v1
+        if: steps.changes.outputs.daemon == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: services/shadow-daemon/shadow-daemon
+          asset_name: shadow-daemon-linux-x86_64
+          asset_content_type: application/octet-stream
+
+

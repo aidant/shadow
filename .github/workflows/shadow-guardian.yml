@@ -1,0 +1,30 @@
+name: Shadow Guardian
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    name: Publish
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          persist-credentials: false
+
+      - name: Setup Deno v1
+        uses: denolib/setup-deno@v2
+        with:
+          deno-version: 1
+
+      - name: Build
+        run: npm run build:guardian
+
+      - name: Deploy
+        uses: JamesIves/github-pages-deploy-action@4.1.0 
+        with:
+          branch: gh-pages
+          folder: services/shadow-guardian/public
