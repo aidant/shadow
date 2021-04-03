@@ -1,0 +1,4 @@
+data
+node_modules
+services/shadow-daemon/shadow-daemon
+services/shadow-guardian/public/bundle.js

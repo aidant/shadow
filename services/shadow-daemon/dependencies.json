@@ -1,0 +1,7 @@
+{
+  "imports": {
+    "@shadow/tools/": "../shadow-tools/src/",
+    "oak": "https://deno.land/x/oak@v6.5.0/mod.ts",
+    "path": "https://deno.land/std@0.91.0/path/mod.ts"
+  } 
+}
