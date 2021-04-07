@@ -1,5 +1,10 @@
 {
   "compilerOptions": {
-    "lib": ["DOM", "ESNext"]
+    "lib": ["DOM", "ESNext"],
+    // "jsx": "react-jsx",
+    // "jsxImportSource": "./src/utilities/"
+    "jsx": "react",
+    "jsxFactory": "h",
+    "jsxFragmentFactory": "Fragment"
   }
 }

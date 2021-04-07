@@ -1,5 +1,5 @@
 {
   "imports": {
     "@shadow/tools/": "../shadow-tools/src/"
-  } 
+  }
 }

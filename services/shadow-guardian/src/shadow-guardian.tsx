@@ -6,8 +6,11 @@ console.log(String.raw`
   /____/ /_/ /_/\__,_/ \__,_/  \____/____/|__/      \____/  \__,_/ \__,_/ /_/    \__,_/  /_/  \__,_/ /_/ /_/
 `.replace(/\s+$/gm, '').replace(/\\n/gm, '\n'))
 
-import { createKeyPair } from '@shadow/tools/curve25519.ts'
+import { h } from './utilities/jsx-runtime.ts'
+import { Connection } from './containers/connection.tsx'
 
 addEventListener('load', () => {
-  document.body.textContent = JSON.stringify(createKeyPair(), null, 2)
+  document.body.append(
+    <Connection></Connection>
+  )
 })
