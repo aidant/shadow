@@ -2,18 +2,17 @@
   "scripts": {
     "start": "concurrently \"npm run start:daemon\" \"npm run start:guardian\"",
     "start:daemon": "deno run --unstable --import-map services/shadow-daemon/dependencies.json --lock services/shadow-daemon/dependencies-lock.json --allow-all --watch services/shadow-daemon/src/shadow-daemon.ts",
-    "start:guardian": "concurrently \"npm run build:guardian:watch\" \"serve services/shadow-guardian/public/\"",
+    "start:guardian": "concurrently \"npm run build:guardian:watch\" \"deno run --allow-net --allow-read https://deno.land/std/http/file_server.ts services/shadow-guardian/public/\"",
     "build": "npm run build:daemon && npm run build:guardian",
     "build:daemon": "deno compile --target x86_64-unknown-linux-gnu --unstable --import-map services/shadow-daemon/dependencies.json --lock services/shadow-daemon/dependencies-lock.json --allow-all --output services/shadow-daemon/shadow-daemon services/shadow-daemon/src/shadow-daemon.ts",
-    "build:guardian": "deno bundle --unstable --import-map services/shadow-guardian/dependencies.json --lock services/shadow-guardian/dependencies-lock.json --config services/shadow-guardian/tsconfig.json services/shadow-guardian/src/shadow-guardian.ts services/shadow-guardian/public/bundle.js",
+    "build:guardian": "deno bundle --unstable --import-map services/shadow-guardian/dependencies.json --lock services/shadow-guardian/dependencies-lock.json --config services/shadow-guardian/tsconfig.json services/shadow-guardian/src/shadow-guardian.tsx services/shadow-guardian/public/bundle.js",
     "build:guardian:watch": "nodemon --watch services/shadow-guardian/src --ext \"*\" --exec \"npm run build:guardian\"",
     "update": "npm run update:daemon && npm run update:guardian",
     "update:daemon": "deno cache --unstable --import-map services/shadow-daemon/dependencies.json --lock services/shadow-daemon/dependencies-lock.json --reload --lock-write services/shadow-daemon/src/shadow-daemon.ts",
-    "update:guardian": "deno cache --unstable --import-map services/shadow-guardian/dependencies.json --lock services/shadow-guardian/dependencies-lock.json --config services/shadow-guardian/tsconfig.json --reload --lock-write services/shadow-guardian/src/shadow-guardian.ts"
+    "update:guardian": "deno cache --unstable --import-map services/shadow-guardian/dependencies.json --lock services/shadow-guardian/dependencies-lock.json --config services/shadow-guardian/tsconfig.json --reload --lock-write services/shadow-guardian/src/shadow-guardian.tsx"
   },
   "devDependencies": {
     "concurrently": "^6.0.0",
-    "nodemon": "^2.0.7",
-    "serve": "^11.3.2"
+    "nodemon": "^2.0.7"
   }
 }
