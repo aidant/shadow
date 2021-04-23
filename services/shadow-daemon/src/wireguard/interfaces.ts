@@ -3,6 +3,7 @@ import { createKeyPair } from '@shadow/tools/curve25519.ts'
 import { Interface, PrivateConfigurationInterface, PrivateConfiguration } from '@shadow/tools/types.ts'
 import { run } from '../utilities/cli.ts'
 import { createIP } from '../utilities/ip.ts'
+import { path } from '../utilities/path.ts'
 
 export const validateInterface = (descriptor?: Interface) => {
   const errors: Error[] = []
@@ -80,7 +81,7 @@ const startInterface = async (descriptor: PrivateConfigurationInterface) => {
   await run(
     `ip link add dev ${descriptor.name} type wireguard`,
     `ip address add dev ${descriptor.name} ${ip}`,
-    `wg setconf ${descriptor.name} configuration/${descriptor.name}.conf`,
+    `wg setconf ${descriptor.name} ${path(`${descriptor.name}.conf`)}`,
     `ip link set up dev ${descriptor.name}`,
     `iptables -A FORWARD -i ${descriptor.name} -j ACCEPT`,
     `iptables -t nat -A POSTROUTING -o ${interfaceOut} -j MASQUERADE`,
@@ -129,7 +130,8 @@ export const createInterface = async (descriptor: Interface): Promise<Interface>
   return publicInterface
 }
 
-await Promise.all(getConfiguration().interfaces.map(startInterface))
+await setConfiguration()
+  .then(() => Promise.all(getConfiguration().interfaces.map(startInterface)))
 
 Deno.signals.terminate()
   .then(() => Promise.all(getConfiguration().interfaces.map(stopInterface)))

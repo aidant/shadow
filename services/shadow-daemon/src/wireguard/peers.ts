@@ -4,6 +4,7 @@ import { ini } from '../utilities/ini.ts'
 import { createIP } from '../utilities/ip.ts'
 import { getConfiguration, getPublicConfigurationMetadata, setConfiguration } from './configuration.ts'
 import { RouteParams } from 'oak'
+import { path } from '../utilities/path.ts'
 
 export const validatePeer = (body: CreatePeerDescriptor, { interface: name }: RouteParams) => {
   const errors: Error[] = []
@@ -103,7 +104,7 @@ export const createPeer = async (interfaceName: string, descriptor: CreatePeerDe
   })
 
   await setConfiguration()
-  await run(`wg syncconf ${interfaceName} configuration/${interfaceName}.conf`)
+  await run(`wg syncconf ${interfaceName} ${path(`${descriptor.name}.conf`)}`)
 
   return ini({
     Interface: {
