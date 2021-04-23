@@ -30,6 +30,11 @@ export function middleware <T>(
       }
     }
   
-    ctx.response.body = JSON.stringify(await handler(body!, ctx.params), null, 2)
+    try {
+      ctx.response.body = JSON.stringify(await handler(body!, ctx.params), null, 2)
+    } catch (error) {
+      console.error(error)
+      throw error
+    }
   }
 }
