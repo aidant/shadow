@@ -26,8 +26,8 @@ export const validatePeer = (body: CreatePeerDescriptor, { interface: name }: Ro
     error('Property "name" must be a string.')
   }
 
-  if (body.name?.length > 64) {
-    error('Property "name" is longer than 64 characters.')
+  if (body.name?.length > 32) {
+    error('Property "name" is longer than 32 characters.')
   }
 
   if (!/^[a-z0-9-]+$/i.test(body.name)) {
@@ -58,8 +58,8 @@ export const validatePeer = (body: CreatePeerDescriptor, { interface: name }: Ro
     error('Property "publicKey" must be a string.')
   }
 
-  if (body.publicKey?.length > 32) {
-    error('Property "publicKey" is longer than 32 characters.')
+  if (body.publicKey?.length > 64) {
+    error('Property "publicKey" is longer than 64 characters.')
   }
 
   if (!/^[a-z0-9/+]+={1,3}$/i.test(body.publicKey)) {

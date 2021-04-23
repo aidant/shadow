@@ -5,4 +5,4 @@ import { createPeer } from '../wireguard/peers.ts'
 
 export const peers = new Router({ prefix: '/interfaces/:interface/peers' })
 
-peers.post('/:peer', middleware((body, { interface: name }) => createPeer(name as string, body), validatePeer))
+peers.post('/', middleware((body, { interface: name }) => createPeer(name as string, body), validatePeer))
