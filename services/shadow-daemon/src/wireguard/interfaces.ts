@@ -70,8 +70,11 @@ export const validateInterface = (descriptor?: Interface) => {
   }
 }
 
-const getDefaultInterface = () => {
-  return run('route | grep "^default" | grep -o "[^ ]*$"')
+const getDefaultInterface = async (): Promise<string> => {
+  const route = await run('route')
+  const defaultInterface = route.match(/^default.+?(?<interface>[^ ]*)$/im)?.groups?.interface
+  if (!defaultInterface) throw new Error('Unable to get default interface.')
+  return defaultInterface
 }
 
 const startInterface = async (descriptor: PrivateConfigurationInterface) => {
