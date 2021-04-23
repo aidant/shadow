@@ -1,5 +1,8 @@
-import { DIRECTORY } from '../environment.ts'
+import { PrivateConfiguration, PublicConfiguration } from '@shadow/tools/types.ts'
+import { DOMAIN_NAME } from '../environment.ts'
+import { run } from '../utilities/cli.ts'
 import { ini } from '../utilities/ini.ts'
+import { json } from '../utilities/json.ts'
 import { path } from '../utilities/path.ts'
 
 interface WireguardConfiguration {
@@ -17,32 +20,57 @@ interface WireguardConfiguration {
   }[]
 }
 
-export interface ConfigurationInterface {
-  readonly privateKey: string
-  readonly publicKey: string
-  
-  readonly name: string
-  readonly host: string
-  readonly port: number
-  readonly cidr: string
 
-  readonly peers: {
-    name: string
-
-    readonly publicKey: string
-    readonly presharedKey: string
-    readonly ip: string
-  }[]
+let configuration: PrivateConfiguration = (await json(path('configuration.json'))) || {
+  interfaces: []
 }
 
-export interface Configuration {
-  [name: string]: ConfigurationInterface
-}
-
-let configuration: Configuration = await Deno.readTextFile(path('configuration.json')).then(JSON.parse)
-
-export const getConfiguration = () => {
+export const getConfiguration = async (): Promise<PrivateConfiguration> => {
   return configuration
+}
+
+const getPublicIPv4Address = async (): Promise<string | null> => {
+  const dug = await run('dig -4 @1.1.1.1 ch txt whoami.cloudflare +short')
+  const [ip] = /(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)/.exec(dug) || []
+  if (!ip) return null
+  return ip
+}
+
+const getPublicIPv4DomainName = async (ipv4: string): Promise<string | null> => {
+  const dug = await run(`dig -4 @1.1.1.1 ptr ${ipv4} +short`)
+  const domain = dug.trim().replace(/\.$/, '')
+  if (!domain) return null
+  return domain
+}
+
+export const getPublicConfigurationMetadata = async (): Promise<PublicConfiguration['metadata']> => {
+  let host = DOMAIN_NAME
+
+  if (!host) {
+    const address = await getPublicIPv4Address()
+    if (!address) throw new Error('Unable to resolve host.')
+    const domainName = await getPublicIPv4DomainName(address)
+    host = domainName || address
+  }
+
+  return {
+    host
+  }
+}
+
+export const getPublicConfiguration = async (): Promise<PublicConfiguration> => {
+  return {
+    metadata: await getPublicConfigurationMetadata(),
+    interfaces: configuration.interfaces.map(iface => ({
+      name: iface.name,
+      port: iface.port,
+      ipv4: iface.ipv4,
+      peers: iface.peers.map(peer => ({
+        name: peer.name,
+        ip: peer.ip
+      }))
+    }))
+  }
 }
 
 export const setConfiguration = async () => {
@@ -50,9 +78,7 @@ export const setConfiguration = async () => {
     Deno.writeTextFile(path('configuration.json'), JSON.stringify(configuration, null, 2))
   ]
 
-  for (const name in configuration) {
-    const config = configuration[name]
-
+  for (const config of configuration.interfaces) {
     const wireguard: WireguardConfiguration = {
       Interface: {
         PrivateKey: config.privateKey,
@@ -67,7 +93,7 @@ export const setConfiguration = async () => {
     }
 
     promises.push(
-      Deno.writeTextFile(path(`${name}.conf`), ini(wireguard))
+      Deno.writeTextFile(path(`${config.name}.conf`), ini(wireguard))
     )
   }
 

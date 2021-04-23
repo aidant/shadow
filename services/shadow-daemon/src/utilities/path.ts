@@ -1,4 +1,4 @@
-import { join } from 'path'
 import { DIRECTORY } from '../environment.ts'
 
-export const path = (...segments: string[]) => join(DIRECTORY, ...segments)
+await Deno.mkdir(DIRECTORY, { recursive: true })
+export const path = (...segments: string[]) => [DIRECTORY, ...segments].join('/').replace(/\/+/g, '/')

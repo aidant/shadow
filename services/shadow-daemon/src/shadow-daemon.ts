@@ -8,11 +8,14 @@ console.log(String.raw`
 
 import { Application } from 'oak'
 import { PORT, HOST } from './environment.ts'
+import { configuration } from './endpoints/configuration.ts'
 import { interfaces } from './endpoints/interfaces.ts'
 import { peers } from './endpoints/peers.ts'
 
 const app = new Application()
 
+app.use(configuration.routes())
+app.use(configuration.allowedMethods())
 app.use(interfaces.routes())
 app.use(interfaces.allowedMethods())
 app.use(peers.routes())
