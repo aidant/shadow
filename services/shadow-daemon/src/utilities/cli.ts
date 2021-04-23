@@ -36,6 +36,8 @@ export const cli = async (command: string[], directory: string, environment: Rec
   const stdout = new TextDecoder().decode(stdoutArrayBuffer)
   const stderr = new TextDecoder().decode(stderrArrayBuffer)
 
+  console.log(`cli:\n\tcommand: ${command.join(' ')}\n\tdirectory: ${directory}\n\tenvironment: ${JSON.stringify(environment)}\n\tsuccess: ${status.success}\n\tcode: ${status.code}\n\tsignal: ${status.signal}\n\tstdout: ${stdout}\n\t${stderr}`)
+
   return {
     success: status.success,
     code: status.code,
