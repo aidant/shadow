@@ -26,11 +26,11 @@ export const validatePeer = (body: CreatePeerDescriptor, { interface: name }: Ro
     error('Property "name" must be a string.')
   }
 
-  if (body.name?.length > 32) {
-    error('Property "name" is longer than 32 characters.')
+  if (body.name?.length > 64) {
+    error('Property "name" is longer than 64 characters.')
   }
 
-  if (!/^[a-z0-9-]$/i.test(body.name)) {
+  if (!/^[a-z0-9-]+$/i.test(body.name)) {
     error('Property "name" includes invalid characters.')
   }
 
@@ -42,11 +42,11 @@ export const validatePeer = (body: CreatePeerDescriptor, { interface: name }: Ro
     error('Property "presharedKey" must be a string.')
   }
 
-  if (body.presharedKey?.length > 32) {
-    error('Property "presharedKey" is longer than 32 characters.')
+  if (body.presharedKey?.length > 64) {
+    error('Property "presharedKey" is longer than 64 characters.')
   }
 
-  if (!/^[A-Za-z0-9/+]={,3}$/.test(body.presharedKey)) {
+  if (!/^[a-z0-9/+]+={1,3}$/i.test(body.presharedKey)) {
     error('Property "presharedKey" includes invalid characters.')
   }
 
@@ -62,7 +62,7 @@ export const validatePeer = (body: CreatePeerDescriptor, { interface: name }: Ro
     error('Property "publicKey" is longer than 32 characters.')
   }
 
-  if (!/^[A-Za-z0-9/+]={,3}$/.test(body.publicKey)) {
+  if (!/^[a-z0-9/+]+={1,3}$/i.test(body.publicKey)) {
     error('Property "publicKey" includes invalid characters.')
   }
 
@@ -74,7 +74,7 @@ export const validatePeer = (body: CreatePeerDescriptor, { interface: name }: Ro
     error('InterfaceName must be a string.')
   }
 
-  if (!/^[a-z0-9-]$/i.test(name as string)) {
+  if (!/^[a-z0-9-]+$/i.test(name as string)) {
     error('InterfaceName includes invalid characters.')
   }
 
