@@ -220,7 +220,7 @@ const createPublicKey = (privateKey: Uint8Array): Uint8Array => {
 }
 
 const createBase64EncodedKey = (key: Uint8Array): string => {
-  return btoa(new TextDecoder('utf8').decode(key))
+  return btoa(String.fromCharCode(...key))
 }
 
 interface KeyPair {
