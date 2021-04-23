@@ -25,7 +25,7 @@ let configuration: PrivateConfiguration = (await json(path('configuration.json')
   interfaces: []
 }
 
-export const getConfiguration = async (): Promise<PrivateConfiguration> => {
+export const getConfiguration = (): PrivateConfiguration => {
   return configuration
 }
 

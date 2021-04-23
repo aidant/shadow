@@ -98,7 +98,7 @@ const stopInterface = async (descriptor: PrivateConfigurationInterface) => {
 }
 
 export const createInterface = async (descriptor: Interface): Promise<Interface> => {
-  const configuration = await getConfiguration()
+  const configuration = getConfiguration()
 
   if (configuration.interfaces.find(iface => iface.name === descriptor.name)) {
     throw new Error(`Interface ${descriptor.name} already exists.`)
@@ -129,6 +129,7 @@ export const createInterface = async (descriptor: Interface): Promise<Interface>
   return publicInterface
 }
 
+await Promise.all(getConfiguration().interfaces.map(startInterface))
+
 Deno.signals.terminate()
-  .then<PrivateConfiguration, never>(() => getConfiguration())
-  .then((configuration) => Promise.all(configuration.interfaces.map(stopInterface)))
+  .then(() => Promise.all(getConfiguration().interfaces.map(stopInterface)))
