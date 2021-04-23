@@ -104,7 +104,7 @@ export const createPeer = async (interfaceName: string, descriptor: CreatePeerDe
   })
 
   await setConfiguration()
-  await run(`wg syncconf ${interfaceName} ${path(`${descriptor.name}.conf`)}`)
+  await run(`wg syncconf ${interfaceName} ${path(`${iface.name}.conf`)}`)
 
   return ini({
     Interface: {
