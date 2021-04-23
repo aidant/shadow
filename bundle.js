@@ -52,14 +52,14 @@ const Fragment = ({ children  } = {
 };
 const component = (name, render)=>{
     const constructor = class extends CustomComponent {
-        #root=this.attachShadow({
+        #root = this.attachShadow({
             mode: 'closed'
         });
         constructor(){
             super();
             this.#root.append(h("link", {
-                href: 'style.css',
-                rel: 'stylesheet'
+                href: "style.css",
+                rel: "stylesheet"
             }));
         }
         connectedCallback() {
@@ -74,7 +74,7 @@ const Button = component('x-button', (instance)=>{
 });
 const Card = component('x-card', (instance)=>{
     return h("div", {
-        class: 'card'
+        class: "card"
     }, h("slot", null));
 });
 const Input = component('x-input', (instance)=>{
