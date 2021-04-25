@@ -92,7 +92,7 @@ export const createPeer = async (interfaceName: string, descriptor: CreatePeerDe
     throw new Error(`Interface ${interfaceName} does not exist.`)
   }
 
-  const index = iface.peers.length
+  const index = iface.peers.length + 1
 
   iface.peers.push({
     name: descriptor.name,
