@@ -24,7 +24,7 @@ app.use(peers.allowedMethods())
 
 await startAllInterfaces()
 
-await app.listen({
+app.listen({
   hostname: HOST,
   port: PORT,
 })
