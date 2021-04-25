@@ -11,7 +11,10 @@ export function middleware <T>(
 ): RouterMiddleware {
   return async (ctx) => {
     let body: T
-  
+
+    ctx.response.headers.set('Access-Control-Request-Headers', '*')
+    ctx.response.headers.set('Access-Control-Request-Method', '*')
+    
     if (validator) {
       try {
         body = await ctx.request.body({ type: 'json' }).value
