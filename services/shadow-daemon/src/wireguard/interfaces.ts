@@ -88,6 +88,9 @@ const startInterface = async (descriptor: PrivateConfigurationInterface) => {
     `ip link set up dev ${descriptor.name}`,
     `iptables -A FORWARD -i ${descriptor.name} -j ACCEPT`,
     `iptables -t nat -A POSTROUTING -o ${interfaceOut} -j MASQUERADE`,
+    `iptables -A INPUT -p udp -m udp --dport ${descriptor.port} -j ACCEPT`,
+    `iptables -A FORWARD -i ${descriptor.name} -j ACCEPT`,
+    `iptables -A FORWARD -o ${descriptor.name} -j ACCEPT`,
   )
 }
 
@@ -98,6 +101,9 @@ const stopInterface = async (descriptor: PrivateConfigurationInterface) => {
     `ip link delete dev ${descriptor.name}`,
     `iptables -D FORWARD -i ${descriptor.name} -j ACCEPT`,
     `iptables -t nat -D POSTROUTING -o ${interfaceOut} -j MASQUERADE`,
+    `iptables -D INPUT -p udp -m udp --dport ${descriptor.port} -j ACCEPT`,
+    `iptables -D FORWARD -i ${descriptor.name} -j ACCEPT`,
+    `iptables -D FORWARD -o ${descriptor.name} -j ACCEPT`,
   )
 }
 
