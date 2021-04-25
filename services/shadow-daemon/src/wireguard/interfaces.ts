@@ -133,8 +133,19 @@ export const createInterface = async (descriptor: Interface): Promise<Interface>
   return publicInterface
 }
 
-await setConfiguration()
-  .then(() => Promise.all(getConfiguration().interfaces.map(startInterface)))
+export const startAllInterfaces = async () => {
+  await setConfiguration()
+  const configuration = getConfiguration()
 
-Deno.signals.terminate()
-  .then(() => Promise.all(getConfiguration().interfaces.map(stopInterface)))
+  for (const descriptor of configuration.interfaces) {
+    await startInterface(descriptor)
+  }
+}
+
+export const stopAllInterfaces = async () => {
+  const configuration = getConfiguration()
+
+  for (const descriptor of configuration.interfaces) {
+    await stopInterface(descriptor)
+  }
+}
