@@ -11,7 +11,7 @@ import { PORT, HOST } from './environment.ts'
 import { configuration } from './endpoints/configuration.ts'
 import { interfaces } from './endpoints/interfaces.ts'
 import { peers } from './endpoints/peers.ts'
-import { startAllInterfaces, stopAllInterfaces } from './wireguard/interfaces.ts'
+import { systemStop, systemStart } from './system.ts'
 
 const app = new Application()
 
@@ -22,7 +22,7 @@ app.use(interfaces.allowedMethods())
 app.use(peers.routes())
 app.use(peers.allowedMethods())
 
-await startAllInterfaces()
+await systemStart()
 
 app.listen({
   hostname: HOST,
@@ -30,9 +30,9 @@ app.listen({
 })
 
 await Promise.race([
-  Deno.signal(Deno.Signal.SIGTERM).then(stopAllInterfaces),
-  Deno.signal(Deno.Signal.SIGHUP).then(stopAllInterfaces),
-  Deno.signal(Deno.Signal.SIGINT).then(stopAllInterfaces),
+  Deno.signal(Deno.Signal.SIGTERM).then(systemStop),
+  Deno.signal(Deno.Signal.SIGHUP).then(systemStop),
+  Deno.signal(Deno.Signal.SIGINT).then(systemStop),
 ])
 
 Deno.exit()
