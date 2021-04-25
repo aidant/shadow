@@ -165,7 +165,7 @@ const createPublicKey = (privateKey: Uint8Array): Uint8Array => {
     z[i] = privateKey[i]
   }
 
-  z[31] = (z[31] & 127) | 64
+  z[31] = (privateKey[31] & 127) | 64
   z[0] &= 248
 
   unpack25519(x, _9)
