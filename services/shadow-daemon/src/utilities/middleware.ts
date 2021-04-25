@@ -12,8 +12,7 @@ export function middleware <T>(
   return async (ctx) => {
     let body: T
 
-    ctx.response.headers.set('Access-Control-Request-Headers', '*')
-    ctx.response.headers.set('Access-Control-Request-Method', '*')
+    ctx.response.headers.set('Access-Control-Allow-Origin', '*')
     
     if (validator) {
       try {
