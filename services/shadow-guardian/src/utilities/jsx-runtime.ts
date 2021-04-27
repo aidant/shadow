@@ -1,6 +1,6 @@
 import { CustomComponent } from './component.tsx'
 
-type Component = string | typeof Element
+type Component = string | Element | typeof Element 
 type Child = string | Node
 type Props = Record<string, unknown>
 type PropsWithChildren <T extends Props = Props> = T & { children?: Child | Child[] }
@@ -11,7 +11,7 @@ declare global {
       [P in keyof HTMLElementTagNameMap]: Partial<Omit<HTMLElementTagNameMap[P], 'addEventListener' | 'removeEventListener'>> & { 
         'x:ref'?: (element: HTMLElementTagNameMap[P]) => void
         class?: string
-      }
+      } & Record<string, any>
     }
   }
 }
@@ -42,7 +42,9 @@ const setChildren = (element: ParentNode, children?: Child | Child[]) => {
 export const jsx = (component: Component, { 'x:ref': ref, children, ...props }: PropsWithChildren = {}) => {
   const element = typeof component === 'string'
     ? document.createElement(component)
-    : new component()
+    : component instanceof Element
+      ? component
+      : new component()
 
   setChildren(element, children)
 
@@ -65,7 +67,7 @@ export const jsx = (component: Component, { 'x:ref': ref, children, ...props }: 
 
 export const h = (component: Component, props: Props = {}, ...children: Child[]) => jsx(component, { ...props, children })
 
-export const Fragment = ({ children }: PropsWithChildren = {}) => {
+export function Fragment ({ children }: PropsWithChildren = {}) {
   const element = document.createDocumentFragment()
 
   setChildren(element, children)
