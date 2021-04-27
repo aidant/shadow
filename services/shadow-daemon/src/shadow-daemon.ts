@@ -15,6 +15,11 @@ import { systemStop, systemStart } from './system.ts'
 
 const app = new Application()
 
+app.use((ctx, next) => {
+  ctx.response.headers.set('Access-Control-Allow-Origin', '*')
+  return next()
+})
+
 app.use(configuration.routes())
 app.use(configuration.allowedMethods())
 app.use(interfaces.routes())

@@ -11,8 +11,6 @@ export function middleware <T>(
 ): RouterMiddleware {
   return async (ctx) => {
     let body: T
-
-    ctx.response.headers.set('Access-Control-Allow-Origin', '*')
     
     if (validator) {
       try {
