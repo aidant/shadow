@@ -37,7 +37,7 @@ const getPublicIPv4Address = async (): Promise<string | null> => {
 }
 
 const getPublicIPv4DomainName = async (ipv4: string): Promise<string | null> => {
-  const dug = await run(`dig -4 @1.1.1.1 ptr ${ipv4} +short`)
+  const dug = await run(`dig -4 @1.1.1.1 ptr -x ${ipv4} +short`)
   const domain = dug.trim().replace(/\.$/, '')
   if (!domain) return null
   return domain
