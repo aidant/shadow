@@ -1,9 +1,10 @@
 import { getConfiguration, setConfiguration } from './configuration.ts'
 import { createKeyPair } from '@shadow/tools/curve25519.ts'
 import { Interface, PrivateConfigurationInterface, PrivateConfiguration } from '@shadow/tools/types.ts'
-import { run } from '../utilities/cli.ts'
+import { createTransaction, run } from '../utilities/cli.ts'
 import { createIP } from '../utilities/ip.ts'
 import { path } from '../utilities/path.ts'
+import * as wg from './wireguard.ts'
 
 export const validateInterface = (descriptor?: Interface) => {
   const errors: Error[] = []
@@ -78,20 +79,65 @@ const getDefaultInterface = async (): Promise<string> => {
 }
 
 const startInterface = async (descriptor: PrivateConfigurationInterface) => {
+  const transaction = createTransaction()
   const interfaceOut = await getDefaultInterface()
   const ip = createIP(descriptor.ipv4, 0n)
 
-  await run(
-    `ip link add dev ${descriptor.name} type wireguard`,
-    `ip address add dev ${descriptor.name} ${ip}`,
-    `wg setconf ${descriptor.name} ${path(`${descriptor.name}.conf`)}`,
-    `ip link set up dev ${descriptor.name}`,
-    `iptables -A FORWARD -i ${descriptor.name} -j ACCEPT`,
-    `iptables -t nat -A POSTROUTING -o ${interfaceOut} -j MASQUERADE`,
-    `iptables -A INPUT -p udp -m udp --dport ${descriptor.port} -j ACCEPT`,
-    `iptables -A FORWARD -i ${descriptor.name} -j ACCEPT`,
-    `iptables -A FORWARD -o ${descriptor.name} -j ACCEPT`,
+  const interfaceName = descriptor.name
+
+  let interfaceExists = null
+  try {
+    await run(`ip link show dev ${interfaceName}`)
+    interfaceExists = true
+  } catch {
+    interfaceExists = false
+  }
+
+  let interfaceIsWireguard = null
+  if (interfaceExists) {
+    if (interfaceName in await wg.show()) {
+      interfaceIsWireguard = true
+    } else {
+      interfaceIsWireguard = false
+    }
+  }
+
+  if (!interfaceExists) {
+    transaction.add(`ip link add dev ${interfaceName} type wireguard`)
+    transaction.add(
+      `ip address add dev ${interfaceName} ${ip}`,
+      `ip link delete dev ${descriptor.name}`
+    )
+  } else if (!interfaceIsWireguard) {
+    throw new Error(`Interface: "${interfaceName}" already exists and is not a wireguard interface.`)
+  }
+
+  transaction.add([
+    `wg setconf ${interfaceName} ${path(`${interfaceName}.conf`)}`,
+    `ip link set up dev ${interfaceName}`
+  ])
+
+  transaction.add(
+    `iptables -A FORWARD -i ${interfaceName} -j ACCEPT`,
+    `iptables -D FORWARD -i ${descriptor.name} -j ACCEPT`
   )
+
+  transaction.add(
+    `iptables -t nat -A POSTROUTING -o ${interfaceOut} -j MASQUERADE`,
+    `iptables -t nat -D POSTROUTING -o ${interfaceOut} -j MASQUERADE`
+  )
+
+  transaction.add(
+    `iptables -A INPUT -p udp -m udp --dport ${descriptor.port} -j ACCEPT`,
+    `iptables -D INPUT -p udp -m udp --dport ${descriptor.port} -j ACCEPT`
+  )
+
+  transaction.add(
+    `iptables -A FORWARD -o ${interfaceName} -j ACCEPT`,
+    `iptables -D FORWARD -o ${descriptor.name} -j ACCEPT`
+  )
+
+  await transaction.commit()
 }
 
 const stopInterface = async (descriptor: PrivateConfigurationInterface) => {
@@ -102,7 +148,6 @@ const stopInterface = async (descriptor: PrivateConfigurationInterface) => {
     `iptables -D FORWARD -i ${descriptor.name} -j ACCEPT`,
     `iptables -t nat -D POSTROUTING -o ${interfaceOut} -j MASQUERADE`,
     `iptables -D INPUT -p udp -m udp --dport ${descriptor.port} -j ACCEPT`,
-    `iptables -D FORWARD -i ${descriptor.name} -j ACCEPT`,
     `iptables -D FORWARD -o ${descriptor.name} -j ACCEPT`,
   )
 }
