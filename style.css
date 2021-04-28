@@ -80,7 +80,10 @@ select {
 
 x-connection-manager > * {
   width: 100%;
-  /* max-width: 24rem; */
+}
+
+x-connection {
+  max-width: 24rem;
 }
 
 .x-connection-submit {
